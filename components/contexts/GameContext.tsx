@@ -263,9 +263,6 @@ function parseSolution(data: Data, str: string): (number | undefined)[][] {
       } else {
         n = v
       }
-      if (n === 0) {
-        n = undefined
-      }
       srow.push(n)
     }
   }

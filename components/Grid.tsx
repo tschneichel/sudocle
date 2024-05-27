@@ -1,5 +1,3 @@
-import GameContext from "./contexts/GameContext"
-import SettingsContext from "./contexts/SettingsContext"
 import {
   PenLinesAction,
   SelectionAction,

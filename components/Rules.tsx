@@ -1,17 +1,18 @@
-import GameContext from "./contexts/GameContext"
-import { useContext } from "react"
-import styles from "./Rules.scss"
+import { useGame } from "./hooks/useGame"
 
 const Rules = () => {
-  const game = useContext(GameContext.State)
+  const { title, author, rules } = useGame(state => ({
+    title: state.data.title,
+    author: state.data.author,
+    rules: state.data.rules,
+  }))
 
   return (
-    <>
-      <h2>{game.data.title}</h2>
-      {game.data.author && <div className="author">by {game.data.author}</div>}
-      <p className="rules">{game.data.rules}</p>
-      <style jsx>{styles}</style>
-    </>
+    <div className="sidebar-page">
+      <h2>{title}</h2>
+      {author && <div className="lead">by {author}</div>}
+      <p className="whitespace-pre-wrap">{rules}</p>
+    </div>
   )
 }
 

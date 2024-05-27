@@ -1,30 +1,30 @@
-import { test, expect, Page } from "@playwright/test"
-import fs from "fs/promises"
+import { Page, expect, test } from "@playwright/test"
+import { EventEmitter } from "events"
 import fsSync from "fs"
+import fs from "fs/promises"
 import { compare } from "odiff-bin"
 import path from "path"
-import { EventEmitter } from "events"
 
 const fixturesDir = path.join(__dirname, "fixtures/grids")
 const fixtures = fsSync
   .readdirSync(fixturesDir)
   .filter(
     f =>
-      f.endsWith(".json") && f !== "package.json" && f !== "package-lock.json"
+      f.endsWith(".json") && f !== "package.json" && f !== "package-lock.json",
   )
 
 const testResultsDir = path.join(
   __dirname,
   "..",
   "test-results",
-  path.basename(__filename)
+  path.basename(__filename),
 )
 const tempScreenshotsDir = path.join(testResultsDir, "temp")
 fsSync.mkdirSync(tempScreenshotsDir, { recursive: true })
 
 const expectedScreenshotsDir = path.join(
   __dirname,
-  `${path.basename(__filename)}-snapshots`
+  `${path.basename(__filename)}-snapshots`,
 )
 fsSync.mkdirSync(expectedScreenshotsDir, { recursive: true })
 
@@ -34,8 +34,10 @@ let eventEmitters: EventEmitter[] = []
 // Check if hardware acceleration is enabled. Without it, our tests will be much slower.
 test("GPU hardware acceleration", async ({ page }) => {
   await page.goto("chrome://gpu")
-  let featureStatusList = page.locator(".feature-status-list")
-  await expect(featureStatusList).toContainText("Hardware accelerated")
+  let hardwareAccelerated = page
+    .locator("li")
+    .getByText("* Canvas: Hardware accelerated")
+  await expect(hardwareAccelerated).toBeVisible()
 })
 
 test.describe.parallel("Grid", () => {
@@ -75,7 +77,7 @@ test.describe.parallel("Grid", () => {
       // load puzzle
       let puzzleData = await page.evaluate(
         json => (window as any).initTestGrid(json),
-        data
+        data,
       )
       if (puzzleData.metadata?.bgimage !== undefined) {
         // wait for background image to be loaded
@@ -96,7 +98,7 @@ test.describe.parallel("Grid", () => {
       let expectedImage = path.join(expectedScreenshotsDir, `${f}.png`)
       if (!fsSync.existsSync(expectedImage)) {
         console.warn(
-          `     Screenshot of ${f} does not exist yet. Creating it now ...`
+          `     Screenshot of ${f} does not exist yet. Creating it now ...`,
         )
         await fs.writeFile(expectedImage, screenshot)
       }
@@ -106,7 +108,7 @@ test.describe.parallel("Grid", () => {
       let result = await compare(expectedImage, actualImage, diffImage, {
         antialiasing: true,
         threshold: 0.01,
-        outputDiffMask: true
+        outputDiffMask: true,
       })
 
       // evaluate result
@@ -118,11 +120,11 @@ test.describe.parallel("Grid", () => {
         // save actual screenshot and expected screenshot next to diff image
         await fs.writeFile(
           path.join(testResultsDir, `${f}.actual.png`),
-          screenshot
+          screenshot,
         )
         await fs.copyFile(
           expectedImage,
-          path.join(testResultsDir, `${f}.expected.png`)
+          path.join(testResultsDir, `${f}.expected.png`),
         )
         isOK = false
       } else if (!result.match) {
@@ -135,9 +137,6 @@ test.describe.parallel("Grid", () => {
       fs.unlink(actualImage)
 
       expect(isOK).toEqual(true)
-
-      // reset Grid for the next test
-      await page.evaluate(() => (window as any).resetTestGrid())
     })
   }
 })

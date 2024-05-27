@@ -1,30 +1,30 @@
-import SettingsContext from "./contexts/SettingsContext"
-import { useContext } from "react"
-import styles from "./About.scss"
+import { useSettings } from "./hooks/useSettings"
 
 const About = () => {
-  const settings = useContext(SettingsContext.State)
+  const theme = useSettings(state => state.theme)
 
   let currentYear = new Date().getFullYear()
 
   return (
-    <>
+    <div className="sidebar-page">
       <a
         href="https://github.com/michel-kraemer/sudocle"
         target="_blank"
         rel="noreferrer"
       >
-        <div className="logo">
-          {settings.theme !== "dark" && (
+        <div className="max-w-screen-xs mt-10 relative pb-2">
+          {theme !== "dark" && (
             <img src={require("../assets/logo.svg")} alt="Sudocle logo" />
           )}
-          {settings.theme === "dark" && (
+          {theme === "dark" && (
             <img src={require("../assets/logo-white.svg")} alt="Sudocle logo" />
           )}
-          <div className="version">v{process.env.version}</div>
+          <div className="font-bold text-base absolute -right-2 bottom-0 leading-none text-fg font-baloo">
+            v{process.env.version}
+          </div>
         </div>
       </a>
-      <p className="copyright">
+      <p className="mb-4 mt-2">
         Copyright &copy; 2020&ndash;{currentYear}{" "}
         <a href="https://michelkraemer.com" target="_blank" rel="noreferrer">
           Michel Krämer
@@ -74,8 +74,7 @@ const About = () => {
           https://doi.org/10.1038/nmeth.1618
         </a>
       </p>
-      <style jsx>{styles}</style>
-    </>
+    </div>
   )
 }
 

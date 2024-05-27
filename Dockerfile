@@ -1,7 +1,4 @@
-FROM node:16 as build
-
-ARG MATOMO_URL
-ARG MATOMO_SITE_ID
+FROM node:20-slim as build
 
 RUN mkdir /sudocle
 COPY package.json /sudocle
@@ -9,12 +6,23 @@ COPY package-lock.json /sudocle
 WORKDIR /sudocle
 RUN npm ci
 
+ARG MATOMO_URL
+ARG MATOMO_SITE_ID
+ARG SUDOCLE_CORS_ALLOW_ORIGIN
+
 COPY . /sudocle
 RUN npm run build
 
-FROM nginx:1.19
+FROM node:20-slim
 
-COPY nginx.conf /etc/nginx/templates/default.conf.template
-COPY --from=build /sudocle/out /usr/share/nginx/html/sudocle
+RUN useradd -s /bin/bash -m sudocle && \
+    mkdir -p /sudocle/.next/cache/fetch-cache && \
+    chown -R sudocle /sudocle/.next/cache/fetch-cache
 
-EXPOSE 80
+COPY --from=build /sudocle/.next/standalone/ /sudocle
+WORKDIR /sudocle
+
+EXPOSE 3000
+
+USER sudocle
+CMD ["node", "server.js"]

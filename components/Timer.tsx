@@ -1,17 +1,16 @@
 import Button from "./Button"
-import GameContext from "./contexts/GameContext"
+import { useGame } from "./hooks/useGame"
 import { TYPE_PAUSE } from "./lib/Actions"
-import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { Pause } from "lucide-react"
-import styles from "./Timer.scss"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface TimerProps {
   solved: boolean
 }
 
 const Timer = ({ solved }: TimerProps) => {
-  const game = useContext(GameContext.State)
-  const updateGame = useContext(GameContext.Dispatch)
+  const paused = useGame(state => state.paused)
+  const updateGame = useGame(state => state.updateGame)
 
   const [start] = useState(+new Date())
   const [end, setEnd] = useState<number>()
@@ -29,23 +28,23 @@ const Timer = ({ solved }: TimerProps) => {
   }
 
   const onPause = useCallback(() => {
-    if (game.paused) {
+    if (paused) {
       let nextRemaining = next - pauseStart!
       setNext(+new Date() - (1000 - nextRemaining))
       let elapsed = +new Date() - pauseStart!
       setPausedElapsed(oldElapsed => oldElapsed + elapsed)
       setNext(+new Date())
       updateGame({
-        type: TYPE_PAUSE
+        type: TYPE_PAUSE,
       })
     } else {
       updateGame({
-        type: TYPE_PAUSE
+        type: TYPE_PAUSE,
       })
       setContinueVisible(true)
       setPauseStart(+new Date())
     }
-  }, [game.paused, next, pauseStart, updateGame])
+  }, [paused, next, pauseStart, updateGame])
 
   function onContinue() {
     setContinueVisible(false)
@@ -54,7 +53,7 @@ const Timer = ({ solved }: TimerProps) => {
 
   useEffect(() => {
     clearTimeout(nextTimer.current)
-    if (game.paused) {
+    if (paused) {
       return
     }
 
@@ -77,30 +76,35 @@ const Timer = ({ solved }: TimerProps) => {
     nextTimer.current = window.setTimeout(() => {
       setNext(next + 1000)
     }, next - now)
-  }, [s, m, h, start, end, next, game.paused, pausedElapsed])
+  }, [s, m, h, start, end, next, paused, pausedElapsed])
 
   return (
     <>
-      <div className="timer">
+      <div className="flex items-center leading-none">
         {h > 0 && <>{("" + h).padStart(2, "0")}:</>}
         {("" + m).padStart(2, "0")}:{("" + s).padStart(2, "0")}
-        <div className="pause-button" onClick={onPause}>
-          <Pause />
+        <div
+          className="cursor-pointer pl-0.5 h-3 flex items-center"
+          onClick={onPause}
+        >
+          <Pause
+            stroke="none"
+            className="[&_rect]:[rx:1] leading-none h-[0.7rem] fill-fg"
+          />
         </div>
       </div>
       {continueVisible && (
-        <div className="timer-pause-overlay">
-          <div className="continue-area">
-            <div className="title">
-              <Pause size="1.5em" /> Game paused
+        <div className="fixed inset-0 bg-bg/75 flex justify-center items-center z-50 backdrop-blur-lg">
+          <div className="flex flex-col justify-center items-center">
+            <div className="font-medium pt-5 flex items-center text-sm mb-4">
+              <Pause size="1.3rem" className="mr-1 mb-[1px]" /> Game paused
             </div>
-            <div className="button-area">
+            <div className="w-16 text-[0.6rem] mt-0.5">
               <Button onClick={onContinue}>Continue</Button>
             </div>
           </div>
         </div>
       )}
-      <style jsx>{styles}</style>
     </>
   )
 }

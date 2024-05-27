@@ -1,14 +1,52 @@
 import Palette from "./Palette"
 import RadioGroup from "./RadioGroup"
 import RangeSlider from "./RangeSlider"
-import SettingsContext from "./contexts/SettingsContext"
-import { useContext, useEffect, useRef, useState } from "react"
-import styles from "./Settings.scss"
+import { useSettings } from "./hooks/useSettings"
+import { useEffect, useRef, useState } from "react"
+import { useShallow } from "zustand/react/shallow"
+
+const Slider = ({ children }: { children: React.ReactNode }) => (
+  <div className="mb-4 max-w-[7rem]">{children}</div>
+)
+
+const PaletteLabel = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-col items-start">{children}</div>
+)
 
 const Settings = () => {
-  const settings = useContext(SettingsContext.State)
-  const updateSettings = useContext(SettingsContext.Dispatch)
-  const [themeInternal, setThemeInternal] = useState(settings.theme)
+  const {
+    colourPalette,
+    theme,
+    customColours,
+    zoom,
+    fontSizeFactorDigits,
+    fontSizeFactorCornerMarks,
+    fontSizeFactorCentreMarks,
+    setColourPalette,
+    setTheme,
+    setCustomColours: setSettingsCustomColours,
+    setZoom,
+    setFontSizeFactorDigits,
+    setFontSizeFactorCornerMarks,
+    setFontSizeFactorCentreMarks,
+  } = useSettings(
+    useShallow(state => ({
+      colourPalette: state.colourPalette,
+      theme: state.theme,
+      customColours: state.customColours,
+      zoom: state.zoom,
+      fontSizeFactorDigits: state.fontSizeFactorDigits,
+      fontSizeFactorCornerMarks: state.fontSizeFactorCornerMarks,
+      fontSizeFactorCentreMarks: state.fontSizeFactorCentreMarks,
+      setColourPalette: state.setColourPalette,
+      setTheme: state.setTheme,
+      setCustomColours: state.setCustomColours,
+      setZoom: state.setZoom,
+      setFontSizeFactorDigits: state.setFontSizeFactorDigits,
+      setFontSizeFactorCornerMarks: state.setFontSizeFactorCornerMarks,
+      setFontSizeFactorCentreMarks: state.setFontSizeFactorCentreMarks,
+    })),
+  )
 
   const refPlaceholderCTC = useRef<HTMLDivElement>(null)
   const refPlaceholderWong = useRef<HTMLDivElement>(null)
@@ -16,42 +54,13 @@ const Settings = () => {
   const [coloursDefault, setColoursDefault] = useState<string[]>([])
   const [coloursCTC, setColoursCTC] = useState<string[]>([])
   const [coloursWong, setColoursWong] = useState<string[]>([])
-  const [coloursCustom, setColoursCustom] = useState(settings.customColours)
-
-  function onChangeTheme(theme: string) {
-    setThemeInternal(theme)
-    setTimeout(() => {
-      updateSettings({ theme })
-    }, 100)
-  }
-
-  const changeZoomTimeout = useRef<number>()
-  function onChangeZoom(value: number) {
-    if (changeZoomTimeout.current !== undefined) {
-      clearTimeout(changeZoomTimeout.current)
-    }
-    changeZoomTimeout.current = window.setTimeout(() => {
-      updateSettings({ zoom: value })
-    }, 200)
-  }
+  const [coloursCustom, setColoursCustom] = useState(customColours)
 
   function zoomValueToDescription(value: number) {
     if (value === 1) {
       return "Default"
     }
     return `x${value}`
-  }
-
-  function onChangeFontSizeDigits(value: number) {
-    updateSettings({ fontSizeFactorDigits: value })
-  }
-
-  function onChangeFontSizeCornerMarks(value: number) {
-    updateSettings({ fontSizeFactorCornerMarks: value })
-  }
-
-  function onChangeFontSizeCentreMarks(value: number) {
-    updateSettings({ fontSizeFactorCentreMarks: value })
   }
 
   function fontSizeValueToDescription(value: number): string | undefined {
@@ -75,12 +84,8 @@ const Settings = () => {
 
   function onUpdateCustomColours(colours: string[]) {
     setColoursCustom(colours)
-    updateSettings({ customColours: colours })
+    setSettingsCustomColours(colours)
   }
-
-  useEffect(() => {
-    setThemeInternal(settings.theme)
-  }, [settings.theme])
 
   useEffect(() => {
     function makeColours(elem: Element): string[] {
@@ -102,138 +107,130 @@ const Settings = () => {
   }, [])
 
   return (
-    <>
+    <div className="sidebar-page">
       <h2>Settings</h2>
 
       <h3>Theme</h3>
       <RadioGroup
         name="theme"
-        value={themeInternal}
+        ariaLabel="Select theme"
+        value={theme}
         options={[
           {
             id: "default",
-            label: "Sudocle"
+            label: "Sudocle",
           },
           {
             id: "dark",
-            label: "Dark"
-          }
+            label: "Dark",
+          },
         ]}
-        onChange={onChangeTheme}
+        onChange={setTheme}
       />
 
       <h3>Colour Palette</h3>
-      <div
-        className="palette-placeholder"
-        data-colour-palette="ctc"
-        ref={refPlaceholderCTC}
-      />
-      <div
-        className="palette-placeholder"
-        data-colour-palette="wong"
-        ref={refPlaceholderWong}
-      />
+      <div data-colour-palette="ctc" ref={refPlaceholderCTC} />
+      <div data-colour-palette="wong" ref={refPlaceholderWong} />
       <RadioGroup
         name="colourPalette"
-        value={settings.colourPalette}
+        ariaLabel="Select colour palette"
+        value={colourPalette}
         options={[
           {
             id: "default",
             label: (
-              <div className="palette-label">
+              <PaletteLabel>
                 <div>Sudocle</div>
                 <Palette colours={coloursDefault} />
-              </div>
-            )
+              </PaletteLabel>
+            ),
           },
           {
             id: "ctc",
             label: (
-              <div className="palette-label">
+              <PaletteLabel>
                 <div>Cracking the Cryptic</div>
                 <Palette colours={coloursCTC} />
-              </div>
-            )
+              </PaletteLabel>
+            ),
           },
           {
             id: "wong",
             label: (
-              <div className="palette-label">
+              <PaletteLabel>
                 <div>Wong (optimised for colour-blindness)</div>
                 <Palette colours={coloursWong} />
-              </div>
-            )
+              </PaletteLabel>
+            ),
           },
           {
             id: "custom",
             label: (
-              <div className="palette-label">
+              <PaletteLabel>
                 <div>Custom</div>
                 <Palette
                   colours={coloursCustom}
                   customisable={true}
                   updatePalette={onUpdateCustomColours}
                 />
-              </div>
-            )
-          }
+              </PaletteLabel>
+            ),
+          },
         ]}
-        onChange={colourPalette => updateSettings({ colourPalette })}
+        onChange={setColourPalette}
       />
 
       <h3>Zoom</h3>
-      <div className="slider">
+      <Slider>
         <RangeSlider
           id="range-zoom"
           min={0.9}
           max={1.25}
           step={0.05}
-          value={settings.zoom}
-          onChange={onChangeZoom}
+          value={zoom}
+          onChange={setZoom}
           valueToDescription={zoomValueToDescription}
         />
-      </div>
+      </Slider>
 
       <h3>Font sizes</h3>
-      <div className="slider">
+      <Slider>
         <RangeSlider
           id="range-digits"
           label="Digits"
           min={0.75}
           max={1.5}
           step={0.125}
-          value={settings.fontSizeFactorDigits}
-          onChange={onChangeFontSizeDigits}
+          value={fontSizeFactorDigits}
+          onChange={setFontSizeFactorDigits}
           valueToDescription={fontSizeValueToDescription}
         />
-      </div>
-      <div className="slider">
+      </Slider>
+      <Slider>
         <RangeSlider
           id="range-corner-marks"
           label="Corner marks"
           min={0.75}
           max={1.5}
           step={0.125}
-          value={settings.fontSizeFactorCornerMarks}
-          onChange={onChangeFontSizeCornerMarks}
+          value={fontSizeFactorCornerMarks}
+          onChange={setFontSizeFactorCornerMarks}
           valueToDescription={fontSizeValueToDescription}
         />
-      </div>
-      <div className="slider">
+      </Slider>
+      <Slider>
         <RangeSlider
           id="range-centre-marks"
           label="Centre marks"
           min={0.75}
           max={1.5}
           step={0.125}
-          value={settings.fontSizeFactorCentreMarks}
-          onChange={onChangeFontSizeCentreMarks}
+          value={fontSizeFactorCentreMarks}
+          onChange={setFontSizeFactorCentreMarks}
           valueToDescription={fontSizeValueToDescription}
         />
-      </div>
-
-      <style jsx>{styles}</style>
-    </>
+      </Slider>
+    </div>
   )
 }
 

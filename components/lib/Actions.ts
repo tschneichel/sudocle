@@ -88,7 +88,7 @@ export interface RedoAction {
 
 export interface InitAction {
   readonly type: typeof TYPE_INIT
-  readonly data?: Data
+  readonly data?: any
 }
 
 export interface CheckAction {

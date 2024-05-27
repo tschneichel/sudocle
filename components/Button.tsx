@@ -1,6 +1,5 @@
+import clsx from "clsx"
 import { MouseEvent, MouseEventHandler, ReactNode, useState } from "react"
-import classNames from "classnames"
-import styles from "./Button.scss"
 
 interface ButtonProps {
   active?: boolean
@@ -15,10 +14,8 @@ const Button = ({
   onClick,
   noPadding = false,
   pulsating = false,
-  children
+  children,
 }: ButtonProps) => {
-  const [pressed, setPressed] = useState(false)
-
   function onClickInternal(e: MouseEvent) {
     if (onClick !== undefined) {
       onClick(e)
@@ -26,30 +23,21 @@ const Button = ({
     e.stopPropagation()
   }
 
-  function onMouseDown() {
-    setPressed(true)
-  }
-
-  function onMouseUp() {
-    setPressed(false)
-  }
-
   return (
     <div
       tabIndex={0}
-      className={classNames("button", {
-        active,
-        pressed,
-        "no-padding": noPadding,
-        pulsating
-      })}
+      className={clsx(
+        "flex flex-1 text-fg rounded justify-center items-center cursor-pointer select-none leading-4 relative focus:outline-none transition-colors duration-100 ease-linear hover:bg-button-hover hover:active:bg-primary hover:active:text-bg hover:active:transition-none",
+        noPadding ? "p-0" : "p-1",
+        active
+          ? "bg-button-active"
+          : pulsating
+            ? "[&:not(:hover)]:animate-pulsating"
+            : "bg-grey-700",
+      )}
       onClick={onClickInternal}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
     >
       {children}
-      <style jsx>{styles}</style>
     </div>
   )
 }

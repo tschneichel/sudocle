@@ -1,35 +1,48 @@
-import GameContext from "./contexts/GameContext"
-import SidebarContext from "./contexts/SidebarContext"
-import { ID_RULES, ID_SETTINGS, ID_HELP, ID_ABOUT } from "./lib/SidebarTabs"
 import Timer from "./Timer"
+import { useGame } from "./hooks/useGame"
+import { useSidebar } from "./hooks/useSidebar"
+import { ID_ABOUT, ID_HELP, ID_RULES, ID_SETTINGS } from "./lib/SidebarTabs"
 import { BookOpen, HelpCircle, Info, Sliders } from "lucide-react"
-import { useContext } from "react"
-import styles from "./StatusBar.scss"
 
 const StatusBar = () => {
-  const game = useContext(GameContext.State)
-  const onTabClick = useContext(SidebarContext.OnTabClick)
+  const { title, rules, solved } = useGame(state => ({
+    title: state.data.title,
+    rules: state.data.rules,
+    solved: state.solved,
+  }))
+  const onTabClick = useSidebar(state => state.onTabClick)
 
   return (
-    <div className="status-bar">
-      <Timer solved={game.solved} />
-      <div className="menu">
-        {game.data.title !== undefined && game.data.rules !== undefined && (
-          <div className="menu-item" onClick={() => onTabClick(ID_RULES)}>
-            <BookOpen />
+    <div className="static flex justify-center items-center w-full bg-grey-700 text-fg text-[0.8rem] font-normal h-[var(--status-bar-height)] pt-[1px] portrait:justify-between portrait:py-0 portrait:px-4">
+      <Timer solved={solved} />
+      <div className="hidden portrait:flex">
+        {title !== undefined && rules !== undefined && (
+          <div
+            className="flex ml-2 cursor-pointer hover:text-primary"
+            onClick={() => onTabClick(ID_RULES)}
+          >
+            <BookOpen height="1em" />
           </div>
         )}
-        <div className="menu-item" onClick={() => onTabClick(ID_SETTINGS)}>
-          <Sliders />
+        <div
+          className="flex ml-2 cursor-pointer hover:text-primary"
+          onClick={() => onTabClick(ID_SETTINGS)}
+        >
+          <Sliders height="1em" />
         </div>
-        <div className="menu-item" onClick={() => onTabClick(ID_HELP)}>
-          <HelpCircle />
+        <div
+          className="flex ml-2 cursor-pointer hover:text-primary"
+          onClick={() => onTabClick(ID_HELP)}
+        >
+          <HelpCircle height="1em" />
         </div>
-        <div className="menu-item" onClick={() => onTabClick(ID_ABOUT)}>
-          <Info />
+        <div
+          className="flex ml-2 cursor-pointer hover:text-primary"
+          onClick={() => onTabClick(ID_ABOUT)}
+        >
+          <Info height="1em" />
         </div>
       </div>
-      <style jsx>{styles}</style>
     </div>
   )
 }

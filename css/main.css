@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-size: 20px;
+  text-rendering: geometricprecision;
+
+  --status-bar-height: 1.65rem;
+}
+
+@media screen(sm) {
+  :root {
+    font-size: 24px;
+  }
+}
+
+@media screen(md) {
+  :root {
+    font-size: 25px;
+  }
+}
+
+@media screen(lg) {
+  :root {
+    font-size: 26px;
+  }
+}
+
+@media screen(xl) {
+  :root {
+    font-size: 30px;
+  }
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-family);
+}
+
+a {
+  @apply text-primary;
+  @apply hover:text-primary-highlight;
+  @apply underline;
+}
+
+@layer components {
+  .sidebar-page {
+    font-size: 0.6rem;
+  }
+
+  .sidebar-page h2 {
+    @apply text-base;
+    @apply font-medium;
+    @apply my-3;
+  }
+
+  .sidebar-page h3 {
+    @apply text-xs;
+    @apply font-normal;
+    @apply mt-4;
+    @apply mb-2;
+  }
+
+  .sidebar-page .lead {
+    @apply text-xs;
+    @apply text-fg/50;
+    @apply mb-3;
+  }
+
+  .sidebar-page h2:has(+ .lead) {
+    @apply mb-0;
+  }
+
+  .sidebar-page p {
+    @apply my-2;
+    @apply leading-4;
+  }
+}

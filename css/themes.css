@@ -21,6 +21,7 @@
   --selection-red: 255 41 73;
   --selection-green: 41 255 109;
   --selection-blue: 41 123 255;
+  --selection-darkgrey: 169 169 169;
 }
 
 [data-theme="dark"] {

@@ -1,5 +1,5 @@
 import { getAlpha, getRGBColor } from "../lib/colorutils"
-import { drawDashedLineString } from "../lib/linestringutils"
+import {drawDashedLineString, drawNormalLineString} from "../lib/linestringutils"
 import { disposePolygon, shrinkPolygon } from "../lib/polygonutils"
 import { GridElement } from "./GridElement"
 import { ThemeColours } from "./ThemeColours"
@@ -77,15 +77,20 @@ class CageElement implements GridElement {
     let color = this.cage.borderColor
       ? getRGBColor(this.cage.borderColor)
       : options.themeColours.foregroundColor
-    let alpha = this.cage.borderColor ? getAlpha(this.cage.borderColor) : 1
+    let alpha = this.cage.borderColor ? getAlpha(this.cage.borderColor.substring(0, 7)) : 1
     if (shrunkenOutline.length > 1) {
       // close polygon
       shrunkenOutline.push(shrunkenOutline[0])
       shrunkenOutline.push(shrunkenOutline[1])
     }
-    drawDashedLineString(shrunkenOutline, [3, 2], 0, this.outline)
+    // Killer Cages have no border Color element and need to be dashed
+    if (this.cage.borderColor){
+      drawNormalLineString(shrunkenOutline, this.outline)
+    }
+    else{
+      drawDashedLineString(shrunkenOutline, [3, 2], 0, this.outline)
+    }
     this.outline.stroke({ width: 1, color, alpha: alpha })
-
     if (this.topleftText !== undefined) {
       this.topleftText.x =
         this.cage.topleft[1] * options.cellSize + options.cellSize / 20

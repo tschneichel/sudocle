@@ -54,6 +54,26 @@ export interface FogLight {
   size: 1 | 3
 }
 
+export interface Trigger {
+  type: string
+  cell: string
+}
+
+export interface Effect {
+  type: string
+  cells: string
+}
+
+export interface TriggerEffect {
+  trigger: Trigger
+  effect: Effect
+}
+
+export interface FogDissolver {
+  origin: [number, number]
+  cells: [number, number][]
+}
+
 export interface SVGPath {
   cellSize: number
   fill?: string
@@ -83,6 +103,7 @@ export interface Data {
   readonly overlays: Overlay[]
   readonly solution?: (number | undefined)[][]
   readonly fogLights?: FogLight[]
+  readonly fogDissolvers?: FogDissolver[],
   readonly svgPaths?: SVGPath[]
   readonly title?: string
   readonly author?: string

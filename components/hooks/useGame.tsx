@@ -21,13 +21,9 @@ import {
   TYPE_COLOURS,
   TYPE_SUDOKURULE,
   TYPE_DIGITS,
-  TYPE_CHECK,
-  TYPE_COLOURS,
   TYPE_MODE,
   TYPE_MODE_GROUP,
-    TYPE_PAUSE,
-    TYPE_PENLINES,
-  TYPE_REDO,
+  TYPE_PENLINES,
   TYPE_SELECTION,
   TYPE_UNDO,
   TYPE_REDO,
@@ -47,7 +43,7 @@ import {
 } from "../lib/Modes"
 import parseSolution from "../lib/parsesolution"
 import { hasFog, ktoxy, xytok } from "../lib/utils"
-import { Data, DataCell, FogLight } from "../types/Data"
+import {Data, DataCell, FogDissolver, FogLight} from "../types/Data"
 import { Digit } from "../types/Game"
 import { isEqual, isString } from "lodash"
 import { create } from "zustand"
@@ -168,11 +164,27 @@ function makeFogLights(
     digits.forEach((v, k) => {
       let [x, y] = ktoxy(k)
       let expected = data.solution![y][x]
+      let fogDissolvers: FogDissolver[] | undefined = data.fogDissolvers;
       if (!v.given && v.digit === expected) {
-        r.push({
-          center: [y, x],
-          size: 3,
-        })
+        if (fogDissolvers === undefined){
+          r.push({
+            center: [y, x],
+            size: 3,
+          })
+        }
+        else {
+          fogDissolvers.forEach(fogDissolver => {
+            if (fogDissolver.origin[0] === y && fogDissolver.origin[1] === x){
+              fogDissolver.cells.forEach(cell => {
+                r.push({
+                  center: [cell[0], cell[1]],
+                  size: 1,
+                })
+              })
+            }
+          })
+        }
+
       } else if (v.given && v.discovered) {
         r.push({
           center: [y, x],
@@ -837,6 +849,11 @@ function gameReducerNoUndo(state: GameState, mode: string, action: Action) {
         marksReducer(state.cornerMarks, action, state.selection, state.cornerMarks, state.centreMarks, state.digits)
       }
       state.selection.clear()
+      if (state.data.fogLights !== undefined) {
+        // update fog lights after digits have changed
+        state.fogLights = makeFogLights(state.data, state.digits)
+        state.fogRaster = makeFogRaster(state.data, state.fogLights)
+      }
       return
     case TYPE_MODE:
       modeReducer(state, action)

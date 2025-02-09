@@ -85,3 +85,25 @@ export function drawDashedLineString(
     }
   }
 }
+
+export function drawNormalLineString(
+    points: number[],
+    graphics: Graphics,
+) {
+  let gapLeft = 0
+  let dai = 0
+
+  for (let i = 0; i < points.length - 2; i += 2) {
+    let p1x = points[i]
+    let p1y = points[i + 1]
+    let p2x = points[i + 2]
+    let p2y = points[i + 3]
+
+    graphics.moveTo(p1x, p1y)
+
+    graphics.lineTo(
+        p2x,
+        p2y,
+    )
+  }
+}

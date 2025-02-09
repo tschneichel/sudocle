@@ -3,7 +3,7 @@ import {
   Cage,
   Data,
   DataCell,
-  ExtraRegion,
+  ExtraRegion, FogDissolver,
   FogLight,
   Overlay,
   Settings,
@@ -13,6 +13,8 @@ import Color from "color"
 import rename from "deep-rename-keys"
 import JSON5 from "json5"
 import { isString } from "lodash"
+import parseFogDissolvers from "./parseFogDissolvers";
+import parseFogLights from "./parseFogLights";
 
 const KEYS: Record<string, string> = {
   c: "color",
@@ -205,6 +207,15 @@ export function convertCTCPuzzle(strPuzzle: string): Data {
   let arrows: Arrow[] = puzzle.arrows
 
   let fogLights: FogLight[] | undefined = undefined
+  if (puzzle.foglight !== undefined){
+    fogLights = parseFogLights(puzzle.foglight)
+  }
+
+  let fogDissolvers: FogDissolver[] | undefined = undefined;
+  if (puzzle.triggereffect !== undefined || cages.some(cage => cage.value === 'foglight')){
+    fogDissolvers = parseFogDissolvers(puzzle.triggereffect);
+  }
+
 
   let solution: (number | undefined)[][] | undefined = undefined
   if (isString(puzzle.metadata?.solution)) {
@@ -251,6 +262,7 @@ export function convertCTCPuzzle(strPuzzle: string): Data {
     arrows,
     solution,
     fogLights,
+    fogDissolvers,
     svgPaths,
     title,
     author,

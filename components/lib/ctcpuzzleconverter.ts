@@ -13,8 +13,8 @@ import Color from "color"
 import rename from "deep-rename-keys"
 import JSON5 from "json5"
 import { isString } from "lodash"
-import parseFogDissolvers from "./parseFogDissolvers";
-import parseFogLights from "./parseFogLights";
+import parseFogDissolvers from "./parseFogDissolvers"
+import parseFogLights from "./parseFogLights"
 
 const KEYS: Record<string, string> = {
   c: "color",
@@ -211,11 +211,10 @@ export function convertCTCPuzzle(strPuzzle: string): Data {
     fogLights = parseFogLights(puzzle.foglight)
   }
 
-  let fogDissolvers: FogDissolver[] | undefined = undefined;
-  if (puzzle.triggereffect !== undefined || cages.some(cage => cage.value === 'foglight')){
-    fogDissolvers = parseFogDissolvers(puzzle.triggereffect);
+  let fogDissolvers: FogDissolver[] | undefined = undefined
+  if (puzzle.triggereffect !== undefined || cages.some(cage => cage.value === "foglight")){
+    fogDissolvers = parseFogDissolvers(puzzle.triggereffect)
   }
-
 
   let solution: (number | undefined)[][] | undefined = undefined
   if (isString(puzzle.metadata?.solution)) {

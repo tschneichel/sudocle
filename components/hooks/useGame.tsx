@@ -43,7 +43,7 @@ import {
 } from "../lib/Modes"
 import parseSolution from "../lib/parsesolution"
 import { hasFog, ktoxy, xytok } from "../lib/utils"
-import {Data, DataCell, FogDissolver, FogLight} from "../types/Data"
+import { Data, DataCell, FogDissolver, FogLight } from "../types/Data"
 import { Digit } from "../types/Game"
 import { isEqual, isString } from "lodash"
 import { create } from "zustand"
@@ -164,7 +164,7 @@ function makeFogLights(
     digits.forEach((v, k) => {
       let [x, y] = ktoxy(k)
       let expected = data.solution![y][x]
-      let fogDissolvers: FogDissolver[] | undefined = data.fogDissolvers;
+      let fogDissolvers: FogDissolver[] | undefined = data.fogDissolvers
       if (!v.given && v.digit === expected) {
         if (fogDissolvers === undefined){
           r.push({

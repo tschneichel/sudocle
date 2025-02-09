@@ -1,5 +1,5 @@
 import { getAlpha, getRGBColor } from "../lib/colorutils"
-import {drawDashedLineString, drawNormalLineString} from "../lib/linestringutils"
+import { drawDashedLineString, drawNormalLineString } from "../lib/linestringutils"
 import { disposePolygon, shrinkPolygon } from "../lib/polygonutils"
 import { GridElement } from "./GridElement"
 import { ThemeColours } from "./ThemeColours"
